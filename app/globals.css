@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary-50: oklch(0.97 0.02 250);
+  --color-primary-100: oklch(0.93 0.04 250);
+  --color-primary-500: oklch(0.6 0.2 250);
+  --color-primary-600: oklch(0.5 0.2 250);
+  --color-primary-700: oklch(0.4 0.2 250);
+
+  --color-status-chatting: oklch(0.7 0.15 240);
+  --color-status-generating: oklch(0.8 0.15 90);
+  --color-status-completed: oklch(0.7 0.15 150);
+
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  --spacing: 0.25rem;
+}
