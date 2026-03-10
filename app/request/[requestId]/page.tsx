@@ -122,12 +122,14 @@ export default function RequestResultPage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">{request.title}</h2>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push(`/chat/${requestId}`)}
-              className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
-            >
-              대화 이어하기
-            </button>
+            {role === "biz" && (
+              <button
+                onClick={() => router.push(`/chat/${requestId}`)}
+                className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
+              >
+                대화 이어하기
+              </button>
+            )}
             <button
               onClick={handleCopyLink}
               className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
@@ -168,18 +170,20 @@ export default function RequestResultPage() {
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <RequirementDoc content={request.requirementDoc} />
               </div>
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={handleRegenerateDoc}
-                  disabled={!!regenerating}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 border border-primary-300 rounded-lg hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {regenerating === "doc" && (
-                    <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  )}
-                  {regenerating === "doc" ? "재생성 중..." : "요구사항 재생성"}
-                </button>
-              </div>
+              {role === "biz" && (
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={handleRegenerateDoc}
+                    disabled={!!regenerating}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 border border-primary-300 rounded-lg hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {regenerating === "doc" && (
+                      <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {regenerating === "doc" ? "재생성 중..." : "요구사항 재생성"}
+                  </button>
+                </div>
+              )}
             </div>
           ) : activeTab === "doc" ? (
             <p className="text-gray-400 text-center py-12">
@@ -188,34 +192,38 @@ export default function RequestResultPage() {
           ) : activeTab === "prototype" && request.prototypeHtml ? (
             <div>
               <PrototypePreview html={request.prototypeHtml} />
-              <div className="mt-4 flex justify-end">
-                <button
-                  onClick={handleGeneratePrototype}
-                  disabled={!!regenerating}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 border border-primary-300 rounded-lg hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {regenerating === "prototype" && (
-                    <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  )}
-                  {regenerating === "prototype" ? "재생성 중..." : "프로토타입 재생성"}
-                </button>
-              </div>
+              {role === "biz" && (
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={handleGeneratePrototype}
+                    disabled={!!regenerating}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-primary-600 border border-primary-300 rounded-lg hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {regenerating === "prototype" && (
+                      <span className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {regenerating === "prototype" ? "재생성 중..." : "프로토타입 재생성"}
+                  </button>
+                </div>
+              )}
             </div>
           ) : activeTab === "prototype" ? (
             <div className="text-center py-12">
               <p className="text-gray-400 mb-4">
                 프로토타입이 아직 생성되지 않았습니다.
               </p>
-              <button
-                onClick={handleGeneratePrototype}
-                disabled={!!regenerating || !request.requirementDoc}
-                className="flex items-center gap-2 mx-auto px-4 py-2 text-sm text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {regenerating === "prototype" && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                )}
-                {regenerating === "prototype" ? "생성 중..." : "프로토타입 생성"}
-              </button>
+              {role === "biz" && (
+                <button
+                  onClick={handleGeneratePrototype}
+                  disabled={!!regenerating || !request.requirementDoc}
+                  className="flex items-center gap-2 mx-auto px-4 py-2 text-sm text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {regenerating === "prototype" && (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {regenerating === "prototype" ? "생성 중..." : "프로토타입 생성"}
+                </button>
+              )}
             </div>
           ) : null}
         </div>
