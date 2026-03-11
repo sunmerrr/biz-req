@@ -6,6 +6,7 @@ import { apiError } from "@/lib/errors";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { generatePrototype } from "@/lib/ai";
 import { log } from "@/lib/logger";
+import { saveVersion } from "@/lib/versions";
 import { eq } from "drizzle-orm";
 
 // POST /api/chat/[requestId]/prototype — 프로토타입 HTML 생성
@@ -62,9 +63,16 @@ export async function POST(
       })
       .where(eq(requests.id, requestId));
 
+    let version: number | undefined;
+    try {
+      version = await saveVersion(requestId, "prototype", html);
+    } catch (e) {
+      log("error", "버전 저장 실패", { requestId, error: String(e) });
+    }
+
     log("info", "프로토타입 생성 완료", { requestId });
 
-    return NextResponse.json({ status: "completed" });
+    return NextResponse.json({ status: "completed", version });
   } catch (error) {
     // Rollback to previous status so user can retry
     await db.update(requests)

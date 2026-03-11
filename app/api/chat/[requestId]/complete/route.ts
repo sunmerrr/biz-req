@@ -6,6 +6,7 @@ import { apiError } from "@/lib/errors";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { generateRequirementDoc } from "@/lib/ai";
 import { log } from "@/lib/logger";
+import { saveVersion } from "@/lib/versions";
 import { eq } from "drizzle-orm";
 
 // POST /api/chat/[requestId]/complete — 요구사항 문서 생성
@@ -67,9 +68,16 @@ export async function POST(
       })
       .where(eq(requests.id, requestId));
 
+    let version: number | undefined;
+    try {
+      version = await saveVersion(requestId, "doc", doc);
+    } catch (e) {
+      log("error", "버전 저장 실패", { requestId, error: String(e) });
+    }
+
     log("info", "요구사항 문서 생성 완료", { requestId });
 
-    return NextResponse.json({ requirementDoc: doc, status: "completed" });
+    return NextResponse.json({ requirementDoc: doc, status: "completed", version });
   } catch (error) {
     // Rollback status
     await db.update(requests)

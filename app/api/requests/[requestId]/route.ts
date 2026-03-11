@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requests, comments, messages } from "@/lib/schema";
+import { requests, comments, messages, requestVersions } from "@/lib/schema";
 import { getAuthRole } from "@/lib/auth";
 import { apiError } from "@/lib/errors";
 import { log } from "@/lib/logger";
@@ -100,9 +100,10 @@ export async function DELETE(
     return apiError(404, "NOT_FOUND", "요청을 찾을 수 없습니다.");
   }
 
-  // 댓글 → 메시지 → 요청 순으로 삭제 (FK 제약)
+  // 댓글 → 메시지 → 버전 → 요청 순으로 삭제 (FK 제약)
   await db.delete(comments).where(eq(comments.requestId, requestId));
   await db.delete(messages).where(eq(messages.requestId, requestId));
+  await db.delete(requestVersions).where(eq(requestVersions.requestId, requestId));
   await db.delete(requests).where(eq(requests.id, requestId));
 
   log("info", "요청 삭제", { requestId, title: req.title });

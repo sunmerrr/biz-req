@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import RequirementDoc from "@/components/RequirementDoc";
 import PrototypePreview from "@/components/PrototypePreview";
 import CommentSection from "@/components/CommentSection";
+import VersionSelector from "@/components/VersionSelector";
 
 interface RequestData {
   id: string;
@@ -35,6 +36,10 @@ export default function RequestResultPage() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [regenerating, setRegenerating] = useState("");
+  const [docVersionContent, setDocVersionContent] = useState<string | null>(null);
+  const [protoVersionContent, setProtoVersionContent] = useState<string | null>(null);
+  const [docRefreshTrigger, setDocRefreshTrigger] = useState(0);
+  const [protoRefreshTrigger, setProtoRefreshTrigger] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -67,6 +72,8 @@ export default function RequestResultPage() {
       if (!res.ok) throw new Error("재생성 실패");
       const data = await res.json();
       setRequest(prev => prev ? { ...prev, requirementDoc: data.requirementDoc, status: data.status } : null);
+      setDocVersionContent(null);
+      setDocRefreshTrigger(prev => prev + 1);
     } catch (e) {
       alert(e instanceof Error ? e.message : "재생성에 실패했습니다.");
     } finally {
@@ -84,6 +91,8 @@ export default function RequestResultPage() {
         const data = await refreshRes.json();
         setRequest(data.request);
       }
+      setProtoVersionContent(null);
+      setProtoRefreshTrigger(prev => prev + 1);
     } catch (e) {
       alert(e instanceof Error ? e.message : "프로토타입 생성에 실패했습니다.");
     } finally {
@@ -167,8 +176,14 @@ export default function RequestResultPage() {
         <div className="mb-8">
           {activeTab === "doc" && request.requirementDoc ? (
             <div>
+              <VersionSelector
+                requestId={requestId}
+                type="doc"
+                refreshTrigger={docRefreshTrigger}
+                onVersionSelect={(content) => setDocVersionContent(content)}
+              />
               <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <RequirementDoc content={request.requirementDoc} />
+                <RequirementDoc content={docVersionContent ?? request.requirementDoc} />
               </div>
               {role === "biz" && (
                 <div className="mt-4 flex justify-end">
@@ -191,7 +206,13 @@ export default function RequestResultPage() {
             </p>
           ) : activeTab === "prototype" && request.prototypeHtml ? (
             <div>
-              <PrototypePreview html={request.prototypeHtml} />
+              <VersionSelector
+                requestId={requestId}
+                type="prototype"
+                refreshTrigger={protoRefreshTrigger}
+                onVersionSelect={(content) => setProtoVersionContent(content)}
+              />
+              <PrototypePreview html={protoVersionContent ?? request.prototypeHtml} />
               {role === "biz" && (
                 <div className="mt-4 flex justify-end">
                   <button

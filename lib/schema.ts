@@ -1,4 +1,4 @@
-import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, serial, timestamp, unique } from "drizzle-orm/pg-core";
 
 export const requests = pgTable("requests", {
   id: text("id").primaryKey(),
@@ -26,6 +26,17 @@ export const comments = pgTable("comments", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
+
+export const requestVersions = pgTable("request_versions", {
+  id: serial("id").primaryKey(),
+  requestId: text("request_id").notNull().references(() => requests.id),
+  type: text("type").notNull(),
+  content: text("content").notNull(),
+  version: integer("version").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+}, (table) => [
+  unique("uq_request_type_version").on(table.requestId, table.type, table.version),
+]);
 
 export const apiUsage = pgTable("api_usage", {
   id: serial("id").primaryKey(),
